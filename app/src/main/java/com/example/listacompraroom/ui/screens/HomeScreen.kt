@@ -28,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -48,13 +49,13 @@ import com.example.listacompraroom.ui.state.ShoppingViewModel
 @Composable
 fun HomeScreen(
     viewModel: ShoppingViewModel,
-    onDetailsClick: (Product) -> Unit,
     onModifyProductClick: (Product) -> Unit,
     onAddProductClick: () -> Unit
 ) {
     val products by viewModel.products.observeAsState(emptyList())
     var searchQuery by remember { mutableStateOf("") }
-    var productToDelete by remember { mutableStateOf<Product?>(null) } // Estado para el diálogo
+    var productToDelete by remember { mutableStateOf<Product?>(null) }
+    var productToShowDetails by remember { mutableStateOf<Product?>(null) } // Estado para mostrar detalles
 
     val filteredProducts = products.filter { product ->
         product.product.contains(searchQuery, ignoreCase = true)
@@ -115,10 +116,10 @@ fun HomeScreen(
                     ) {
                         Text(product.product, modifier = Modifier.weight(1f))
                         Text("${product.price}€", modifier = Modifier.weight(1f))
-                        IconButton(onClick = { onDetailsClick(product) }) {
+                        IconButton(onClick = { productToShowDetails = product }) {
                             Icon(Icons.Default.Visibility, contentDescription = "Detalles")
                         }
-                        IconButton(onClick = { productToDelete = product }) { // Muestra el diálogo
+                        IconButton(onClick = { productToDelete = product }) {
                             Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                         }
                         IconButton(onClick = { onModifyProductClick(product) }) {
@@ -154,27 +155,38 @@ fun HomeScreen(
                 }
             )
         }
+
+        // Si productToShowDetails no es nulo, muestra el diálogo de detalles
+        productToShowDetails?.let { product ->
+            DetailsDialog(product = product, onDismiss = { productToShowDetails = null })
+        }
     }
 }
 
 @Composable
 fun BottomBar(total: Float) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+    Surface(
+        color = Color.Black, // Fondo oscuro para asegurar visibilidad en emuladores y móviles
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Text(
-            "Total:",
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyLarge,
-            color = Color.White
-        )
-        Text(
-            "$total€",
-            modifier = Modifier.align(Alignment.CenterVertically),
-            style = MaterialTheme.typography.bodyLarge,
-            color = Color.White
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Total:",
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White
+            )
+            Text(
+                text = "$total€",
+                modifier = Modifier.align(Alignment.CenterVertically),
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White
+            )
+        }
     }
 }
+

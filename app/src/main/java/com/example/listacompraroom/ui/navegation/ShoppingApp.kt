@@ -21,9 +21,6 @@ fun ShoppingApp(viewModel: ShoppingViewModel) {
         composable(Screen.HomeScreen.route) {
             HomeScreen(
                 viewModel,
-                onDetailsClick = { product ->
-                    navController.navigate(Screen.DetailsScreen.createRoute(product.product))
-                },
                 onModifyProductClick = { product ->
                     navController.navigate(Screen.ModifyProductScreen.createRoute(product.product))
                 },
@@ -56,17 +53,6 @@ fun ShoppingApp(viewModel: ShoppingViewModel) {
                         navController.popBackStack()
                     }
                 )
-            }
-        }
-        composable(Screen.DetailsScreen.route) { backStackEntry ->
-            val productName = backStackEntry.arguments?.getString("product")
-            // Asegúrate de que se encuentre el producto. Si no, podrías mostrar un mensaje o navegar de vuelta.
-            val product = viewModel.products.value?.find { it.product == productName }
-            if (product != null) {
-                DetailsDialog(product = product, onDismiss = { navController.popBackStack() })
-            } else {
-                // Si no se encontró el producto, vuelve atrás
-                navController.popBackStack()
             }
         }
     }
